@@ -1,0 +1,100 @@
+---
+title: "ST435 Project"
+author: "Ryan Mersereau"
+date: "2024-04-18"
+output: html_document
+---
+```{r}
+load("~/Downloads/22 RyanMersereau .RData")
+```
+
+```{r}
+# Separating data into phase 1 and phase 2
+phase1 <- data[1:46, 1:18]
+phase2 <- data[47:74, 1:18]
+```
+
+```{r}
+# Test normality
+hist(data[,-19])
+qqnorm(data[,-19])
+qqline(data[,-19])
+shapiro.test(data[,-19])
+```
+
+```{r}
+library(qcc)
+xbar.chart <- qcc(data = phase1, type = "xbar")
+r.chart <- qcc(data = phase1, type = "R")
+```
+We can see from the xbar chart that the data from phase 1 has an abrupt change in mean values
+for observations. While no points plot outside of control limits, conditions such as 8 consecutive points plotting on 
+one side of the center line are violated because of this shift in mean.
+
+```{r}
+phase1.1 <- phase1[1:25,]
+phase1.2 <- phase1[26:46,]
+
+p1.1_xbarchart <- qcc(data = phase1.1, type = "xbar", std.dev = sd.S(phase1.1))
+p1.2_xbarchart <- qcc(data = phase1.2, type = "xbar", std.dev = sd.S(phase1.2))
+p1.1_s <- qcc(data = phase1, type = "S")
+p1.2_s <- qcc(data = phase2, type = "S")
+```
+```{r}
+cusum(phase1, center = 15.895, std.dev = 4.15)
+cusum(phase1, center = 14.17, std.dev = 3.975)
+cusum(phase1, center = 15.1078, std.dev = 4.07)
+```
+
+
+```{r}
+xbar.chart2 <- qcc(data = phase1, type = "xbar", std.dev = sd.S(phase1))
+s.chart <- qcc(data = phase1, type = "S")
+
+qcc(data = phase1, type = "xbar", std.dev = sd.S(phase1), newdata = phase2)
+qcc(data = phase1, type = "S", newdata = phase2)
+```
+
+```{r}
+qcc(data = phase1.2, type = "xbar", std.dev = sd.S(phase1.2), newdata = phase2)
+qcc(data = phase1.2, type = "S", newdata = phase2)
+
+qcc(data = phase1.2, type = "xbar", std.dev = sd.S(phase1.2), newdata = phase2.1)
+qcc(data = phase1.2, type = "S", newdata = phase2.1)
+
+qcc(data = phase1.1, type = "xbar", std.dev = sd.S(phase1.1), newdata = phase2)
+qcc(data = phase1.1, type = "S", newdata = phase2)
+
+qcc(data = phase1.1, type = "xbar", std.dev = sd.S(phase1.1), newdata = phase2.2)
+qcc(data = phase1.1, type = "S", newdata = phase2.2)
+```
+
+```{r}
+phase2.1 <- phase2[1:14,]
+phase2.2 <- phase2[14:28,]
+```
+
+
+```{r}
+# Population parameter estimates
+mean <- xbar.chart2$center ; mean
+std.dev <- xbar.chart2$std.dev; std.dev
+```
+
+```{r}
+# Process capability
+USL <- 18.5
+LSL <- 13.5
+cp <- (USL-LSL)/(6*std.dev);cp
+
+# Cpk
+cpu <- (USL - mean)/(3*std.dev); cpu
+cpl <- (mean - LSL)/(3*std.dev); cpl
+```
+
+
+```{r}
+cp2 <- (USL - LSL)/(6*p1.1_xbarchart$std.dev); cp2
+cp3 <- (USL - LSL)/(6*p1.2_xbarchart$std.dev); cp3
+```
+
